@@ -36,7 +36,7 @@ cvx_begin
 
         % Spacecraft dynamics constraints
         for k = 1:K-1
-            v(:,k+1) == v(:,k) + h/m*f(:,k) - h*g;
+            v(:,k+1) == v(:,k) + h/m*f(:,k) - h*[0,0,g]';
             p(:,k+1) == p(:,k) + h/2*(v(:,k) + v(:,k+1));
         end
 cvx_end
