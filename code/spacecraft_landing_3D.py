@@ -54,7 +54,10 @@ for k in range(K-1):
     ]
 
 prob = cp.Problem(objective, constraints)
-res = prob.solve()
+res = prob.solve(verbose=True)
+
+print(res)
+print(prob.status)
 
 # use the following code to plot your trajectories
 # and the glide cone (don't modify)
