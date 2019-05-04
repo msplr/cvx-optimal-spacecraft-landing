@@ -84,9 +84,12 @@ plt.show()
 # ------------------------------------------------------
 def analyze_constraints(constraints, max_k):
     '''
-    Prints the inactive constraints 
+    Prints the inactive constraints and returns a heatmap of constraint activities
     '''
     k = 0
+    
+    
+    constraint_activity = np.ones((8, max_k+1))
     
     #check values for each constraints
     for cons in constraints:
@@ -95,21 +98,43 @@ def analyze_constraints(constraints, max_k):
             #if value too low
             if cons.dual_value < 1e-5:
                 if k%2 == 0: #even scalar constraints are for max thrust constraints
-                    print('Max thrust constraint inactive at step k =', (k-2)/2 - 1)
+                    step = (k-2)/2 - 1
+                    print('Max thrust constraint inactive at step k =', step)  
+                    constraint_activity[0, int(step)] = 0  
                 else: #odd scalar constraints are for glide cone constraints
-                    print("Glide cone constraint inactive at step k =", (k-1)/2 - 2)
+                    step = (k-1)/2 - 2
+                    print("Glide cone constraint inactive at step k =", step)
+                    constraint_activity[1, int(step)] = 0
         #if constraint is an arry (from k = 0 to 4 and from 2max_k+4 to 4max_k+1)
         else:
             test = np.where(np.abs(cons.dual_value) < 0.2)
             if len(test[0])> 0: #if values are lower than 1
                 if k%2 == 0: #even array constraints are speed dynamic constraints
                     situation = "Speed dynamic constraints"
-                    step = k - (2*max_k + 3)
+                    step = (k - (2*max_k))/2
+                    for elem in test[0]:
+                        print(situation, 'constraint inactive at step k = ', step)
+                        constraint_activity[2+elem, int(step)] = 0
                 else: #odd array constraints are thrust dynamic constraints
                     situation = "Thrust dynamic constraints"
-                    step = k - (2*max_k + 4)
-                for elem in test[0]:
-                    print(situation, 'constraint inactive at step k = ', step)
+                    step = (k - (2*max_k + 1))/2
+                    for elem in test[0]:
+                        print(situation, 'constraint inactive at step k = ', step)
+                        constraint_activity[5+elem, int(step)] = 0
         k = k+1
+        
+    return constraint_activity
 
-analyze_constraints(prob.constraints, K)
+constraint_activity = analyze_constraints(prob.constraints, K)
+
+# plot constrain heatmap:
+fig, ax = plt.subplots(figsize=(10,5)) 
+yticks = np.array(['Max Thrust Constraint', 'Glide Cone Constraint', 
+                   'Speed Constraint $x$', 'Speed Constraint $y$', 'Speed Constraint $z$', 
+                  'Thrust Constraint $x$', 'Thrust Constraint $y$', 'Thrust Constraint $z$'])
+ax = sns.heatmap(constraint_activity, yticklabels=yticks, cmap='Blues') 
+
+ax.set_ylabel('Constraint')
+ax.set_xlabel('Time Step')
+ax.set_title('Constraint Activity Over Time')
+plt.show()
