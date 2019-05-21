@@ -82,8 +82,6 @@ def main():
     plt.show()
     plt.close()
 
-    return
-
     # Multi trajectory plot, find minimal time trajectory
     traj = []
     time = []
@@ -97,6 +95,13 @@ def main():
         time += [K]
         fuel += [res]
         print('Time {}s  fuel {:.2f}'.format(K, res))
+
+    fig = plt.figure()
+    plt.plot(time, fuel)
+    plt.xlabel('time [s]')
+    plt.ylabel('fuel [l]')
+    plt.savefig('fuel.pdf', bbox_inches='tight')
+    plt.show()
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
