@@ -11,6 +11,9 @@ This mini project is based on the 13.2 Optimal spacecraft landing from [Addition
 CVXPY allows to formulate and solve this problem with just a few lines of code.
 
 ```python
+import cvxpy as cp
+import numpy as np
+
 h = 1.
 g = 0.1
 m = 10.
