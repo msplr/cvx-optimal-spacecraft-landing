@@ -58,8 +58,37 @@ def optimize_trajectory(K=35):
 
     return prob.status, (p.value, v.value, f.value), duals, res
 
+def plot_variables(p, v, f, K, alpha=0.5, Fmax=10):
+    t = range(K)
+    fig, ax = plt.subplots(5,1, sharex='all', figsize=(5,5))
+    l = ax[0].plot(t, p.T)
+    ax[0].legend(l, ('x', 'y', 'z'), loc='upper right', ncol=3)
+    ax[0].set_ylabel('$\mathbf{p}$\n[m]')
+    ax[1].plot(t, v.T)
+    ax[1].set_ylabel('$\mathbf{v}$\n[m/s]')
+    ax[2].plot(t, f.T)
+    ax[2].set_ylabel('$\mathbf{f}$\n[N]')
+    cone_dist = p[2,:]-alpha*np.linalg.norm(p[:2,:], ord=2, axis=0)
+    ax[3].plot(t, cone_dist)
+    ax[3].plot(t, np.zeros(K), '--r', lw=1)
+    ax[3].set_ylabel('Cone dist.\n[m]')
+    ax[4].plot(t, np.linalg.norm(f, ord=2, axis=0))
+    ax[4].plot(t, Fmax*np.ones(K), '--r', lw=1)
+    ax[4].set_ylabel('thrust norm\n[N]')
+    ax[4].set_ylabel('$\Vert \mathbf{f} \Vert_2$\n[N]')
+
+    event = np.argmin(cone_dist)
+    for a in ax:
+        a.axvline(event, color='r', ls='--', lw=1)
+    fig.align_ylabels(ax)
+    plt.xlabel('time [s]')
+    plt.savefig('variables.pdf', bbox_inches='tight')
+    plt.show()
+    plt.close()
+
 def main():
-    status, (p, v, f), duals, res = optimize_trajectory()
+    K = 35
+    status, (p, v, f), duals, res = optimize_trajectory(K)
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -78,15 +107,19 @@ def main():
     ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
     ax.view_init(30, -120)
     # ax.view_init(30, 60)
+    # plt.savefig('trajectory.png', dpi=200)
+    # plt.savefig('trajectory.png', bbox_inches='tight', dpi=100)
     plt.savefig('traj.pdf', bbox_inches='tight')
     plt.show()
     plt.close()
+
+    plot_variables(p, v, f, K)
 
     # Multi trajectory plot, find minimal time trajectory
     traj = []
     time = []
     fuel = []
-    for K in [55, 45, 35, 26, 25]:
+    for K in [75, 50, 35, 26, 25]:
         status, (p, v, f), duals, res = optimize_trajectory(K)
         print('K={} {}'.format(K, status))
         if (status != 'optimal'):

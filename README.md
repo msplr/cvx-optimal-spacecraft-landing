@@ -55,7 +55,7 @@ c_pos = [p[:,k+1] == p[:,k] + h/2*(v[:,k] + v[:,k+1]) for k in range(K-1)]
 
 constraints = c_init + c_end + c_fmax + c_cone + c_vel + c_pos
 prob = cp.Problem(objective, constraints)
-res = prob.solve(verbose=False)
+res = prob.solve(verbose=True)
 ```
 
 CVXPY converts this problem into a Second-Order Cone Program (SOCP) which is then solved by ECOS solver.
