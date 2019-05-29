@@ -113,6 +113,18 @@ def main():
     plt.show()
     plt.close()
 
+    w = 0.5
+    t = np.arange(K)
+    plt.figure(figsize=(6.4,2.0))
+    plt.bar(t-0.5*w, duals['max thrust'], width=w, label='Max Thrust')
+    plt.bar(t+0.5*w, duals['trajectory cone'], width=w, label='Glide Cone')
+    plt.ylabel('dual value')
+    plt.xlabel('time [s]')
+    plt.legend()
+    plt.savefig('duals.pdf', bbox_inches='tight')
+    plt.show()
+    plt.close()
+
     plot_variables(p, v, f, K)
 
     # Multi trajectory plot, find minimal time trajectory
